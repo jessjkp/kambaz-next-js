@@ -1,19 +1,35 @@
+"use client";
+
 import Link from "next/link";
+import FormControl from "react-bootstrap/FormControl";
+import FormSelect from "react-bootstrap/FormSelect";
+
 export default function Profile() {
   return (
-    <div id="wd-profile-screen">
-      <h3>Profile</h3>
-      <input defaultValue="alice" placeholder="username" className="wd-username"/><br/>
-      <input defaultValue="123"   placeholder="password" type="password"
-             className="wd-password" /><br/>
-      <input defaultValue="Alice" placeholder="First Name" id="wd-firstname" /><br/>
-      <input defaultValue="Wonderland" placeholder="Last Name" id="wd-lastname" /><br/>
-      <input defaultValue="2000-01-01" type="date" id="wd-dob" /><br/>
-      <input defaultValue="alice@wonderland" type="email" id="wd-email" /><br/>
-      <select defaultValue="FACULTY" id="wd-role">
-        <option value="USER">User</option>       <option value="ADMIN">Admin</option>
-        <option value="FACULTY">Faculty</option> <option value="STUDENT">Student</option>
-      </select><br/>
-      <Link href="signin" > Sign out </Link>
+    <div id="wd-profile-screen" className="p-4" style={{ maxWidth: 520 }}>
+      <h1>Profile</h1>
+
+      <FormControl className="mb-2" defaultValue="alice" />
+      <FormControl className="mb-2" defaultValue="123" type="password" />
+      <FormControl className="mb-2" defaultValue="Alice" />
+      <FormControl className="mb-2" defaultValue="Wonderland" />
+      <FormControl className="mb-2" type="date" />
+      <FormControl className="mb-2" defaultValue="alice@wonderland.com" />
+
+      <FormSelect className="mb-3" defaultValue="User">
+        <option>User</option>
+        <option>Faculty</option>
+        <option>Student</option>
+        <option>TA</option>
+      </FormSelect>
+
+      <Link
+        id="wd-signout-btn"
+        href="/account/signin"
+        className="btn btn-danger w-100"
+      >
+        Signout
+      </Link>
     </div>
-);}
+  );
+}

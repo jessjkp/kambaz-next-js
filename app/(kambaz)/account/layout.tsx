@@ -1,21 +1,12 @@
-import { ReactNode } from "react";
 import AccountNavigation from "./Navigation";
 
-export default function AccountLayout({ 
-  children 
-}: Readonly<{ children: ReactNode }>) {
+export default function AccountLayout({ children }: { children: React.ReactNode }) {
   return (
-    <table>
-      <tbody>
-        <tr>
-          <td valign="top" width="200">
-            <AccountNavigation />
-          </td>
-          <td valign="top" width="100%">
-            {children}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="d-flex p-4">
+      <div style={{ width: 200 }} className="me-4">
+        <AccountNavigation />
+      </div>
+      <div className="flex-fill">{children}</div>
+    </div>
   );
 }

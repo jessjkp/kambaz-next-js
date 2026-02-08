@@ -2,13 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  Badge,
-  Button,
-  FormControl,
-  InputGroup,
-  ListGroup,
-} from "react-bootstrap";
+import {Badge, Button, FormControl, InputGroup,ListGroup} from "react-bootstrap";
 
 import { FaPlus, FaSearch, FaCheckCircle, FaRegFileAlt } from "react-icons/fa";
 import { BsGripVertical } from "react-icons/bs";
@@ -21,7 +15,6 @@ export default function AssignmentsPage() {
   return (
     <div id="wd-assignments" className="wd-main-content-offset p-4">
 
-      {/* Top controls row */}
       <div className="d-flex align-items-center mb-4">
 
         <InputGroup style={{ maxWidth: 420 }}>
@@ -44,10 +37,8 @@ export default function AssignmentsPage() {
         </div>
       </div>
 
-      {/* Assignment group */}
       <ListGroup className="rounded-0">
 
-        {/* Group header */}
         <ListGroup.Item className="p-3 bg-secondary d-flex align-items-center">
           <BsGripVertical className="me-2 fs-3 text-secondary" />
           <FaCaretDown className="me-2" />
@@ -62,7 +53,6 @@ export default function AssignmentsPage() {
           </div>
         </ListGroup.Item>
 
-        {/* A1 */}
         <ListGroup.Item className="p-3 d-flex align-items-center border-start border-5 border-success">
           <BsGripVertical className="me-3 fs-3 text-secondary" />
           <FaRegFileAlt className="me-3 fs-3 text-success" />
@@ -85,7 +75,6 @@ export default function AssignmentsPage() {
           <IoEllipsisVertical className="fs-4" />
         </ListGroup.Item>
 
-        {/* A2 */}
         <ListGroup.Item className="p-3 d-flex align-items-center border-start border-5 border-success">
           <BsGripVertical className="me-3 fs-3 text-secondary" />
           <FaRegFileAlt className="me-3 fs-3 text-success" />
@@ -108,7 +97,6 @@ export default function AssignmentsPage() {
           <IoEllipsisVertical className="fs-4" />
         </ListGroup.Item>
 
-        {/* A3 */}
         <ListGroup.Item className="p-3 d-flex align-items-center border-start border-5 border-success">
           <BsGripVertical className="me-3 fs-3 text-secondary" />
           <FaRegFileAlt className="me-3 fs-3 text-success" />

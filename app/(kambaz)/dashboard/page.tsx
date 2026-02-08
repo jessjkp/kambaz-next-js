@@ -26,7 +26,6 @@ export default function Dashboard() {
       id="wd-dashboard"
       className="p-4"
       style={{
-        // keeps content from being flush against the fixed left sidebar
         marginLeft: 120,
       }}
     >

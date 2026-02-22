@@ -6,7 +6,7 @@ export default function KambazLayout({ children }: { children: React.ReactNode }
     <div id="wd-kambaz">
       <div className="d-flex">
         <div>
-          {/* left nav */}
+          {}
           <KambazNavigation />
         </div>
 

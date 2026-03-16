@@ -20,10 +20,7 @@ export default function CourseNavigation({ cid }: { cid: string }) {
   return (
     <div id="wd-courses-navigation">
       {links.map((label) => {
-        // Convert label to lowercase for URL
         const basePath = label.toLowerCase();
-
-        // Only special case: People
         const href =
           label === "People"
             ? `/courses/${cid}/people/table`

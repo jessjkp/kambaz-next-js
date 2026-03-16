@@ -1,17 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Button,
-  Col,
-  Form,
-  Row,
-} from "react-bootstrap";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Button, Col, Form, Row } from "react-bootstrap";
+import { RootState } from "../../../../store";
+import { addAssignment, updateAssignment } from "../reducer";
 
 export default function EditAssignmentPage() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
-
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { assignments } = useSelector((state:RootState) => state.assignmentReducer);
+  const existing = (assignments as any[]).find((a:any) => a._id === aid);
+  const [assignment, setAssignment] = useState<any>(existing || { 
+    title: "New Assignment",
+    description:"",
+    points:100,
+    due: "2026-03-14T23:59",
+    avaiableFrom: "2025-03-13T00:00",
+    course: cid,
+  })
+  const handleSave = () => {
+    if (aid==="new") {
+      dispatch(addAssignment({...assignment, course: cid}));
+    } else {
+      dispatch(updateAssignment(assignment));
+    }
+    router.push(`/courses/${cid}/assignments`);
+  }
   return (
     <div id="wd-edit-assignment" className="wd-main-content-offset p-4">
       {/* Optional breadcrumb-ish header (safe to remove if your layout already shows it) */}
@@ -26,22 +45,14 @@ export default function EditAssignmentPage() {
         {/* Assignment Name */}
         <Form.Group className="mb-3" controlId="wd-assignment-name">
           <Form.Label className="fw-semibold">Assignment Name</Form.Label>
-          <Form.Control type="text" defaultValue={aid} />
+          <Form.Control type="text" value={assignment.title}  
+          onChange={(e)=>setAssignment({...assignment, title: e.target.value})}/>
         </Form.Group>
 
         {/* Description */}
         <Form.Group className="mb-4" controlId="wd-assignment-description">
-          <Form.Control as="textarea" rows={8} defaultValue={`The assignment is available online
-
-Submit a link to the landing page of your Web application running on Netlify.
-
-The landing page should include the following:
-• Your full name and section
-• Links to each of the lab assignments
-• Link to the Kambaz application
-• Links to all relevant source code repositories
-
-The Kambaz application should include a link to navigate back to the landing page.`} />
+          <Form.Control as="textarea" rows={8} value={assignment.description}  
+          onChange={(e)=>setAssignment({...assignment, description: e.target.value})} />
         </Form.Group>
 
         {/* Points */}
@@ -50,7 +61,8 @@ The Kambaz application should include a link to navigate back to the landing pag
             <Form.Label className="mb-0">Points</Form.Label>
           </Col>
           <Col md={9}>
-            <Form.Control type="number" defaultValue={100} />
+            <Form.Control type="number" value={assignment.points}  
+          onChange={(e)=>setAssignment({...assignment, points: parseInt(e.target.value)})} />
           </Col>
         </Row>
 
@@ -126,7 +138,8 @@ The Kambaz application should include a link to navigate back to the landing pag
                 <Form.Label className="fw-semibold">Due</Form.Label>
                 <Form.Control
                   type="datetime-local"
-                  defaultValue="2024-05-13T23:59"
+                  value={assignment.due}  
+                  onChange={(e)=>setAssignment({...assignment, due: e.target.value})}
                 />
               </Form.Group>
 
@@ -136,7 +149,8 @@ The Kambaz application should include a link to navigate back to the landing pag
                   <Form.Label className="fw-semibold">Available from</Form.Label>
                   <Form.Control
                     type="datetime-local"
-                    defaultValue="2024-05-06T00:00"
+                    value={assignment.avaiableFrom}  
+                     onChange={(e)=>setAssignment({...assignment, avaiableFrom: e.target.value})}
                   />
                 </Col>
                 <Col md={6} className="mb-3">
@@ -153,7 +167,7 @@ The Kambaz application should include a link to navigate back to the landing pag
           <Link href={`/courses/${cid}/assignments`} className="btn btn-light border">
             Cancel
           </Link>
-          <Button variant="danger">Save</Button>
+          <Button variant="danger" onClick={handleSave}>Save</Button>
         </div>
       </Form>
     </div>

@@ -1,34 +1,48 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Badge, Button, FormControl, InputGroup, ListGroup } from "react-bootstrap";
-
-import { FaPlus, FaSearch, FaCheckCircle, FaRegFileAlt } from "react-icons/fa";
+import { FaPlus, FaSearch, FaCheckCircle, FaRegFileAlt, FaTrash } from "react-icons/fa";
 import { BsGripVertical } from "react-icons/bs";
 import { IoEllipsisVertical } from "react-icons/io5";
 import { FaCaretDown } from "react-icons/fa6";
+import { RootState } from "../../../store";
+import { deleteAssignment } from "./reducer";
 
-import * as db from "../../../database";
-
-type Assignment = {
-  _id: string;
-  course: string;
-  title: string;
-  multipleModules?: boolean;
-  available?: string;
-  due?: string;
-  points?: number;
-};
 
 export default function AssignmentsPage() {
   const { cid } = useParams<{ cid: string }>();
+  const dispatch = useDispatch();
+  const { assignments}  = useSelector( (state:RootState) => state.assignmentReducer); 
 
-  const assignments = db.assignments as Assignment[];
-  const courseAssignments = assignments.filter((a) => a.course === cid);
-
+  const courseAssignments = (assignments as any[]).filter((a: any) => a.course === cid);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const deleteClick = (id:string) => { setSelectedId(id); setShowConfirm(true)}
+  const confirmDelete = () => {
+    if (selectedId) dispatch(deleteAssignment(selectedId));
+    setShowConfirm(false);
+    setSelectedId(null);
+  }
   return (
     <div id="wd-assignments" className="wd-main-content-offset p-4">
+      {showConfirm && (
+            <div className="alert alert-warning d-fle4x align-items-center mb-4">
+              <span>Are you sure you want to delete this?</span>
+          <div>
+            <Button variant="danger" className="me-2" onClick={confirmDelete}>
+              Yes
+            </Button>
+            <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="d-flex align-items-center mb-4">
         <InputGroup style={{ maxWidth: 420 }}>
           <InputGroup.Text className="bg-white">
@@ -43,10 +57,13 @@ export default function AssignmentsPage() {
             Group
           </Button>
 
-          <Button variant="danger" size="lg">
+          <Link
+            href={`/courses/${cid}/assignments/new`}
+            className="btn btn-danger btn-lg"
+          >
             <FaPlus className="me-2" />
             Assignment
-          </Button>
+          </Link>
         </div>
       </div>
 
@@ -65,7 +82,7 @@ export default function AssignmentsPage() {
           </div>
         </ListGroup.Item>
 
-        {courseAssignments.map((a) => (
+        {courseAssignments.map((a:any) => (
           <ListGroup.Item
             key={a._id}
             className="p-3 d-flex align-items-center border-start border-5 border-success"
@@ -92,7 +109,11 @@ export default function AssignmentsPage() {
                 </div>
               </Link>
             </div>
-
+            <FaTrash
+              className="text-danger me-3 fs-5"
+              style={{ cursor: "pointer" }}
+              onClick={() => deleteClick(a._id)}
+            />
             <FaCheckCircle className="fs-3 text-success me-3" />
             <IoEllipsisVertical className="fs-4" />
           </ListGroup.Item>

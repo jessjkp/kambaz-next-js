@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { redirect } from "next/navigation";
@@ -7,6 +8,7 @@ import { setCurrentUser } from "../reducer";
 import { RootState } from "../../store";
 import { Button, FormControl } from "react-bootstrap";
 import { useRouter } from "next/navigation";
+import * as client from "../client";
 
 export default function Profile() {
  const [profile, setProfile] = useState<any>({});
@@ -22,10 +24,16 @@ const currentUser = useSelector((state: RootState) => (state as any).accountRedu
     }
   }, [currentUser]);
  
- const signout = () => {
-   dispatch(setCurrentUser(null));
-   redirect("/account/signin");
- };
+  const signout = async () => {
+    await client.signout();
+    dispatch(setCurrentUser(null));
+    redirect("/account/signin");
+  };
+
+  const updateProfile = async () => {
+    const updatedProfile = await client.updateUser(profile);
+    dispatch(setCurrentUser(updatedProfile));
+  };
 
  return (
    <div className="wd-profile-screen">
@@ -60,6 +68,8 @@ const currentUser = useSelector((state: RootState) => (state as any).accountRedu
          <Button onClick={signout} className="w-100 mb-2" id="wd-signout-btn">
            Sign out
          </Button>
+                  <button onClick={updateProfile} className="btn btn-primary w-100 mb-2"> Update </button>
+
        </div>
      )}
    </div>

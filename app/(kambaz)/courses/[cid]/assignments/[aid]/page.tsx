@@ -1,36 +1,68 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { RootState } from "../../../../store";
-import { addAssignment, updateAssignment } from "../reducer";
+import { addAssignment, updateAssignment, deleteAssignment, setAssignments } from "../reducer";
+import * as client from "../client";
+import { useState, useEffect } from "react";
 
 export default function EditAssignmentPage() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { assignments } = useSelector((state:RootState) => state.assignmentReducer);
-  const existing = (assignments as any[]).find((a:any) => a._id === aid);
-  const [assignment, setAssignment] = useState<any>(existing || { 
+
+  const [assignment, setAssignment] = useState<any>({ 
     title: "New Assignment",
     description:"",
     points:100,
     due: "2026-03-14T23:59",
-    avaiableFrom: "2025-03-13T00:00",
+    availableFrom: "2025-03-13T00:00",
     course: cid,
   })
-  const handleSave = () => {
-    if (aid==="new") {
-      dispatch(addAssignment({...assignment, course: cid}));
-    } else {
-      dispatch(updateAssignment(assignment));
+
+const fetchAssignment = async () => {
+  if (aid === "new") return;
+  const existing = await client.findAssignmentById(aid);
+  if (!existing) return;
+
+  setAssignment({
+    title: "New Assignment",
+    description: "",
+    points: 100,
+    due: "2026-03-14T23:59",
+    availableFrom: "2025-03-13T00:00",
+    until: "",
+    course: cid,
+    ...existing,
+  });
+};
+
+useEffect(() => {
+  fetchAssignment();
+}, [aid]);
+
+const handleSave = async () => {
+  if (aid === "new") {
+    const newAssignment = await client.createAssignment(cid, {
+      ...assignment,
+      course: cid,
+    });
+    dispatch(addAssignment(newAssignment));
+  } else {
+  const updatedAssignment = await client.updateAssignment(aid, assignment);    
+  if (!updatedAssignment) {
+      console.error("Update failed: server returned null");
+      return;
     }
-    router.push(`/courses/${cid}/assignments`);
+    dispatch(updateAssignment(updatedAssignment));
   }
+  router.push(`/courses/${cid}/assignments`);
+};
   return (
     <div id="wd-edit-assignment" className="wd-main-content-offset p-4">
       {/* Optional breadcrumb-ish header (safe to remove if your layout already shows it) */}
@@ -149,13 +181,17 @@ export default function EditAssignmentPage() {
                   <Form.Label className="fw-semibold">Available from</Form.Label>
                   <Form.Control
                     type="datetime-local"
-                    value={assignment.avaiableFrom}  
-                     onChange={(e)=>setAssignment({...assignment, avaiableFrom: e.target.value})}
+                    value={assignment.availableFrom}  
+                     onChange={(e)=>setAssignment({...assignment, availableFrom: e.target.value})}
                   />
                 </Col>
                 <Col md={6} className="mb-3">
                   <Form.Label className="fw-semibold">Until</Form.Label>
-                  <Form.Control type="datetime-local" />
+                  <Form.Control
+                      type="datetime-local"
+                      value={assignment.until || ""}
+                      onChange={(e) => setAssignment({ ...assignment, until: e.target.value })}
+                    />
                 </Col>
               </Row>
             </div>

@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Badge, Button, FormControl, InputGroup, ListGroup } from "react-bootstrap";
 import { FaPlus, FaSearch, FaCheckCircle, FaRegFileAlt, FaTrash } from "react-icons/fa";
@@ -12,6 +12,7 @@ import { IoEllipsisVertical } from "react-icons/io5";
 import { FaCaretDown } from "react-icons/fa6";
 import { RootState } from "../../../store";
 import { deleteAssignment } from "./reducer";
+import * as client from "./client";
 
 
 export default function AssignmentsPage() {
@@ -22,12 +23,19 @@ export default function AssignmentsPage() {
   const courseAssignments = (assignments as any[]).filter((a: any) => a.course === cid);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const deleteClick = (id:string) => { setSelectedId(id); setShowConfirm(true)}
-  const confirmDelete = () => {
-    if (selectedId) dispatch(deleteAssignment(selectedId));
+  const deleteClick = (id: string) => {
+    setSelectedId(id);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (selectedId) {
+      await client.deleteAssignment(selectedId);
+      dispatch(deleteAssignment(selectedId));
+    }
     setShowConfirm(false);
     setSelectedId(null);
-  }
+  };
   return (
     <div id="wd-assignments" className="wd-main-content-offset p-4">
       {showConfirm && (

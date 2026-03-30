@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import * as db from "../database/index";
-import { useState } from "react";
+import * as client from "../courses/client"
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewCourse, deleteCourse, updateCourse } from "../courses/reducer";
+import { addNewCourse, deleteCourse, updateCourse, setCourses } from "../courses/reducer";
 import { RootState } from "../store";
 import {
   Row,
@@ -19,12 +20,11 @@ import {
 } from "react-bootstrap";
 
 export default function Dashboard() {
-  const { courses } = useSelector((state: RootState) => state.coursesReducer);
-const currentUser = useSelector((state: RootState) => (state as any).accountReducer?.currentUser);
-  const enrollments = (db.enrollments as any[]);
-  const dispatch = useDispatch();
-  const [showAllCourses, setShowAllCourses] = useState(false);
-
+ const { courses } = useSelector((state: RootState) => state.coursesReducer);
+ const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+ const dispatch = useDispatch();
+ const [allCourses, setAllCourses] = useState<any[]>([]);
+ const [showAllCourses, setShowAllCourses] = useState(false);
   const [course, setCourse] = useState<any>({
     _id: "0",
     name: "New Course",
@@ -37,24 +37,57 @@ const currentUser = useSelector((state: RootState) => (state as any).accountRedu
     description: "New Description",
   });
 
-
-  const [ enrollmentList, setEnrollmentList] = useState<any[]>(enrollments);
-  const enrolledCourses = courses.filter((c: any) =>
-    enrollments.some(
-      (e: any) => e.user === currentUser?._id && e.course === c._id
-    )
-  );
-
-  const isEnrolled = (courseId: string) => enrollmentList.some((e: any) => e.user === currentUser?._id && e.course == courseId);
-  const toggleEnrollment = (courseId: string) => {
-    if (isEnrolled(courseId)) {
-      setEnrollmentList(enrollmentList.filter((e: any) => !(e.user===currentUser?._id && e.course === courseId)));
-    } else {
-      setEnrollmentList([...enrollmentList, {_id: Date.toString(), user: currentUser?._id, course: courseId}]);
+  const fetchCourses = async () => {
+    try {
+      const courses = await client.findMyCourses();
+      dispatch(setCourses(courses));
+    } catch (error) {
+      console.error(error);
     }
-  }
+  };
 
-  const displayedCourses = showAllCourses ? courses : enrolledCourses;
+  const fetchAllCourses = async () => {
+    try {
+      const all = await client.fetchAllCourses();
+      setAllCourses(all);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+    useEffect(() => {
+    if (!currentUser) return;
+    fetchCourses();
+    fetchAllCourses();
+  }, [currentUser]);
+
+  const isEnrolled = (courseId: string) =>
+    courses.some((c: any) => c._id === courseId);
+
+  const toggleEnrollment = async (courseId: string) => {
+    if (isEnrolled(courseId)) {
+      await client.unenroll(courseId);
+    } else {
+      await client.enroll(courseId);
+    }
+    fetchCourses(); 
+  };
+  const displayedCourses = showAllCourses ? allCourses : courses;
+   const onAddNewCourse = async () => {
+    const newCourse = await client.createCourse(course);
+    dispatch(setCourses([ ...courses, newCourse ]));
+  };
+  const onDeleteCourse = async (courseId: string) => {
+    const status = await client.deleteCourse(courseId);
+    dispatch(setCourses(courses.filter((course) => course._id !== courseId)));
+  };
+  const onUpdateCourse = async () => {
+    await client.updateCourse(course);
+    dispatch(setCourses(courses.map((c) => {
+        if (c._id === course._id) { return course; }
+        else { return c; }
+    })));};
+
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1>
@@ -69,20 +102,13 @@ const currentUser = useSelector((state: RootState) => (state as any).accountRedu
 
       <h5>
         New Course
-        <button
-          className="btn btn-primary float-end"
-          id="wd-add-new-course-click"
-          onClick={() => dispatch(addNewCourse(course))}
-        >
-          Add
-        </button>
-        <button
-          className="btn btn-warning float-end me-2"
-          id="wd-update-course-click"
-          onClick={() => dispatch(updateCourse(course))}
-        >
-          Update
-        </button>
+          <button onClick={onAddNewCourse} className="btn btn-primary float-end" id="wd-add-new-course-click" > 
+         Add
+       </button>
+
+      <button onClick={onUpdateCourse} className="btn btn-secondary float-end" id="wd-update-course-click" >
+        Update
+      </button>
       </h5>
 
       <br />
@@ -156,10 +182,11 @@ const currentUser = useSelector((state: RootState) => (state as any).accountRedu
                           className="btn btn-warning me-2 float-end">
                           Edit
                         </button>
-                        <button
-                          onClick={(e) => { e.preventDefault(); dispatch(deleteCourse(c._id)); }}
-                          className="btn btn-danger float-end"
-                          id="wd-delete-course-click">
+                        <button className="btn btn-danger"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  onDeleteCourse(course._id);
+                                }} >
                           Delete
                         </button>
                       </>

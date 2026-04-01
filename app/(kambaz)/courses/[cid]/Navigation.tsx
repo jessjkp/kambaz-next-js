@@ -23,7 +23,7 @@ export default function CourseNavigation({ cid }: { cid: string }) {
         const basePath = label.toLowerCase();
         const href =
           label === "People"
-            ? `/courses/${cid}/people/table`
+            ? `/courses/${cid}/people`
             : `/courses/${cid}/${basePath}`;
 
         const isActive = pathname.startsWith(href);

@@ -48,21 +48,16 @@ useEffect(() => {
 
 const handleSave = async () => {
   if (aid === "new") {
-    const newAssignment = await client.createAssignment(cid, {
+    await client.createAssignment(cid, {
       ...assignment,
       course: cid,
     });
-    dispatch(addAssignment(newAssignment));
   } else {
-  const updatedAssignment = await client.updateAssignment(aid, assignment);    
-  if (!updatedAssignment) {
-      console.error("Update failed: server returned null");
-      return;
-    }
-    dispatch(updateAssignment(updatedAssignment));
+    await client.updateAssignment(assignment._id, assignment);
   }
   router.push(`/courses/${cid}/assignments`);
 };
+
   return (
     <div id="wd-edit-assignment" className="wd-main-content-offset p-4">
       {/* Optional breadcrumb-ish header (safe to remove if your layout already shows it) */}

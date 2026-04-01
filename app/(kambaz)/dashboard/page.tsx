@@ -63,14 +63,14 @@ export default function Dashboard() {
 
   const isEnrolled = (courseId: string) =>
     courses.some((c: any) => c._id === courseId);
-
   const toggleEnrollment = async (courseId: string) => {
     if (isEnrolled(courseId)) {
       await client.unenroll(courseId);
     } else {
       await client.enroll(courseId);
     }
-    fetchCourses(); 
+    await fetchCourses();
+    await fetchAllCourses();
   };
   const displayedCourses = showAllCourses ? allCourses : courses;
    const onAddNewCourse = async () => {
@@ -185,7 +185,7 @@ export default function Dashboard() {
                         <button className="btn btn-danger"
                                 onClick={(event) => {
                                   event.preventDefault();
-                                  onDeleteCourse(course._id);
+                                  onDeleteCourse(c._id);
                                 }} >
                           Delete
                         </button>

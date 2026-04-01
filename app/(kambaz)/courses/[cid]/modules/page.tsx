@@ -36,15 +36,19 @@ export default function Modules() {
     const module = await client.createModuleForCourse(cid as string, newModule);
     dispatch(setModules([...modules, module]));
   };
-  const onRemoveModule = async (moduleId: string) => {
-    await client.deleteModule(moduleId);
-    dispatch(setModules(modules.filter((m: any) => m._id !== moduleId)));
-  };
-  const onUpdateModule = async (module: any) => {
-    await client.updateModule(module);
-    const newModules = modules.map((m: any) => m._id === module._id ? module : m );
-    dispatch(setModules(newModules));
-  };
+ const onRemoveModule = async (moduleId: string) => {
+   await client.deleteModule(cid as string, moduleId);
+   dispatch(setModules(modules.filter((m: any) => m._id !== moduleId)));
+ };
+
+ const onUpdateModule = async (module: any) => {
+   await client.updateModule(cid as string, module);
+   const newModules = modules.map((m: any) =>
+     m._id === module._id ? module : m
+   );
+   dispatch(setModules(newModules));
+ };
+
 
   return (
     <div className="wd-modules">

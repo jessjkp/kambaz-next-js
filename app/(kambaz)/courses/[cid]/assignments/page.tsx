@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -18,9 +19,8 @@ import * as client from "./client";
 export default function AssignmentsPage() {
   const { cid } = useParams<{ cid: string }>();
   const dispatch = useDispatch();
-  const { assignments}  = useSelector( (state:RootState) => state.assignmentReducer); 
+  const [assignments, setAssignments] = useState<any[]>([]);
 
-  const courseAssignments = (assignments as any[]).filter((a: any) => a.course === cid);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const deleteClick = (id: string) => {
@@ -28,10 +28,20 @@ export default function AssignmentsPage() {
     setShowConfirm(true);
   };
 
+  const fetchAssignments = async () => {
+    if (!cid) return;
+    const assignments = await client.findAssignmentsForCourse(cid);
+    setAssignments(assignments);
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [cid]); 
+
   const confirmDelete = async () => {
     if (selectedId) {
       await client.deleteAssignment(selectedId);
-      dispatch(deleteAssignment(selectedId));
+      await fetchAssignments();
     }
     setShowConfirm(false);
     setSelectedId(null);
@@ -90,7 +100,7 @@ export default function AssignmentsPage() {
           </div>
         </ListGroup.Item>
 
-        {courseAssignments.map((a:any) => (
+        {assignments.map((a: any) => (
           <ListGroup.Item
             key={a._id}
             className="p-3 d-flex align-items-center border-start border-5 border-success"

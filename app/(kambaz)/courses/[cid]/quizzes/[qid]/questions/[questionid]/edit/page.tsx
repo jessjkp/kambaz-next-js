@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -21,27 +22,27 @@ export default function QuestionEditorPage() {
   const [question, setQuestion] = useState<any>(null);
 
   const fetchQuestion = async () => {
+    console.log("qstId is:", qstId);
     const data = await client.findQuestionById(qstId);
+    console.log("fetched data:", data);
     setQuestion(data);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (!currentUser) return;
+    if (!qstId) return;
 
     if (!isFaculty) {
-        router.push(`/courses/${courseId}/quizzes/${quizId}`);
-        return;
+      router.push(`/courses/${courseId}/quizzes/${quizId}`);
+      return;
     }
 
     fetchQuestion();
-    }, [qstId, currentUser]);
+  }, [qstId, currentUser]);
 
-    if (!currentUser) return <div className="p-3">Loading...</div>;
-
-    if (!isFaculty) return <div className="p-3">Students cannot edit quiz questions.</div>;
-
-
-    if (!question) return <div className="p-3">Loading question...</div>;
+  if (!currentUser || !qstId) return <div className="p-3">Loading...</div>;
+  if (!isFaculty) return <div className="p-3">Students cannot edit quiz questions.</div>;
+  if (!question) return <div className="p-3">Loading question...</div>;
 
   const updateField = (field: string, value: any) => {
     setQuestion({ ...question, [field]: value });

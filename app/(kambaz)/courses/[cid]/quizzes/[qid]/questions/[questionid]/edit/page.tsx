@@ -25,21 +25,23 @@ export default function QuestionEditorPage() {
     setQuestion(data);
   };
 
-  useEffect(() => {
-    if (currentUser && !isFaculty) {
-      router.push(`/courses/${courseId}/quizzes/${quizId}`);
-      return;
-    }
-    if (isFaculty) {
-      fetchQuestion();
-    }
-  }, [qstId, currentUser]);
+    useEffect(() => {
+    if (!currentUser) return;
 
-  if (currentUser && !isFaculty) {
-    return <div className="p-3">Students cannot edit quiz questions.</div>;
-  }
+    if (!isFaculty) {
+        router.push(`/courses/${courseId}/quizzes/${quizId}`);
+        return;
+    }
 
-  if (!question) return <div className="p-3">Loading...</div>;
+    fetchQuestion();
+    }, [qstId, currentUser]);
+    
+    if (!currentUser) return <div className="p-3">Loading...</div>;
+
+    if (!isFaculty) return <div className="p-3">Students cannot edit quiz questions.</div>;
+
+
+    if (!question) return <div className="p-3">Loading question...</div>;
 
   const updateField = (field: string, value: any) => {
     setQuestion({ ...question, [field]: value });

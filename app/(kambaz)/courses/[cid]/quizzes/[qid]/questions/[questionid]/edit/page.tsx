@@ -22,9 +22,7 @@ export default function QuestionEditorPage() {
   const [question, setQuestion] = useState<any>(null);
 
   const fetchQuestion = async () => {
-    console.log("qstId is:", qstId);
     const data = await client.findQuestionById(qstId);
-    console.log("fetched data:", data);
     setQuestion(data);
   };
 

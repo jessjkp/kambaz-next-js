@@ -8,12 +8,12 @@ import { useSelector } from "react-redux";
 import * as client from "../../../../client";
 
 export default function QuestionEditorPage() {
-  const { cid, qid, questionId } = useParams();
+  const { cid, qid, questionid } = useParams();
   const router = useRouter();
 
   const courseId = cid as string;
   const quizId = qid as string;
-  const qstId = questionId as string;
+  const qstId = questionid as string;
 
   const currentUser = useSelector((state: any) => state.accountReducer.currentUser);
   const isFaculty = currentUser?.role === "FACULTY";
@@ -35,7 +35,7 @@ export default function QuestionEditorPage() {
 
     fetchQuestion();
     }, [qstId, currentUser]);
-    
+
     if (!currentUser) return <div className="p-3">Loading...</div>;
 
     if (!isFaculty) return <div className="p-3">Students cannot edit quiz questions.</div>;
